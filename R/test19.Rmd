@@ -1,0 +1,91 @@
+---
+title: "test19"
+author: "st"
+date: '2021 5 1 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(linprog)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(twitteR)
+library(stringi)
+test19 <- read_csv("~/SKKU/datasets/test19.csv")
+
+
+# 데이터 전처리 과정
+education <- select(test19,region = REGION,sector = SECTOR, class_bylevel = Y1H7_2_1, math_score = Y1MAT_S )%>%
+              group_by(region,sector)%>%filter(class_bylevel == 1 | class_bylevel == 0)
+education
+
+###공립##
+
+public_special <- filter(education,  region == 1, sector == 1)
+ggplot(public_special, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = public_special, var.equal = FALSE)
+# t-test 결과 높은 p value -> 분반 여부가 수학성적에 영향이 있다고 결론 내릴 수 없음
+
+public_metro <- filter(education,  region == 2, sector == 1)
+ggplot(public_metro, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = public_metro, var.equal = FALSE) 
+# t-test 결과 낮은 p value와 함께 분반하지 않은쪽의 수학 성적이 높게나옴 -> 광역시에서는 분반하지 않는것이 수학 성적이 높게나온다고 결론 가능
+
+public_median <- filter(education, region == 3, sector == 1)
+ggplot(public_median, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = public_median, var.equal = FALSE)
+# t-test 결과 매우 높은 p value -> 분반 여부가 수학성적에 영향이 있다고 결론 내릴 수 없음 
+
+public_small <- filter(education, region == 4, sector == 1)
+ggplot(public_small, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = public_small, var.equal = FALSE)
+# t-test 결과 높은 p value -> 분반 여부가 수학성적에 영향이 있다고 결론 내릴 수 없음
+
+
+######사립######
+private_special <- filter(education,  region == 1, sector == 2)
+ggplot(private_special, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = private_special, var.equal = FALSE)
+#관측값 불충분
+
+
+private_metro <- filter(education, region == 2 , sector == 2)
+ggplot(private_metro, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = private_metro, var.equal = FALSE)
+# t-test 결과 낮은 p value와 함께 분반한 쪽의 수학 성적이 높게나옴 -> 광역시에서는 분반하는 것이 수학 성적이 높게나온다고 결론 가능
+
+private_median <- filter(education, region == 3, sector == 2)
+ggplot(private_median, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = private_median, var.equal = FALSE)
+#t-test 결과 0.1의 p value와 함께 분반한 쪽의 수학 성적이 높게나옴 -> 신뢰도 90%에서는 중소도시에서 분반하는 것이 수학 성적이 높게나온다고 결론 가능
+ 
+
+#읍면지역에는 분반안하는 학교가 존재하지 않음.
+private_small <- filter(education, region == 4, sector == 2)
+private_small
+ggplot(private_small, aes(as.factor(class_bylevel),math_score))+geom_boxplot()
+t.test(math_score ~ class_bylevel, data = private_small, var.equal = FALSE)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
